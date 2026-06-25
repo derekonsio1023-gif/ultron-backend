@@ -1,0 +1,12 @@
+{
+  "name": "ultron-backend",
+
+  "type": "module",
+
+  "dependencies": {
+
+    "openai":"latest"
+
+  }
+
+}
