@@ -1,47 +1,56 @@
-import OpenAI from "openai";
-
-
-const client = new OpenAI({
-
-apiKey:process.env.OPENAI_API_KEY
-
-});
-
-
-
-export default async function handler(req,res){
-
+export default async function handler(req, res) {
 
 try{
 
+const response = await fetch(
 
-const messages = req.body.messages;
+"https://openrouter.ai/api/v1/chat/completions",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Authorization":
+`Bearer ${process.env.OPENROUTER_API_KEY}`,
+
+"Content-Type":
+"application/json"
+
+},
+
+body:JSON.stringify({
+
+model:"openrouter/free",
+
+messages:req.body.messages
+
+})
+
+}
+
+);
 
 
 
-const response = await client.chat.completions.create({
-
-model:"gpt-5",
-
-messages
-
-
-});
+const data = await response.json();
 
 
 
 res.status(200).json({
 
-
 reply:
 
-response.choices[0].message.content
+data.choices?.[0]?.message?.content ||
 
+"Sin respuesta"
 
 });
 
 
 }
+
 
 
 catch(error){
@@ -55,7 +64,6 @@ error:error.message
 
 
 }
-
 
 
 }
