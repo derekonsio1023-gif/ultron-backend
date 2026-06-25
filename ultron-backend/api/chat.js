@@ -1,69 +1,60 @@
 export default async function handler(req, res) {
 
-try{
+    // CORS
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-const response = await fetch(
+    // Petición preflight
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
 
-"https://openrouter.ai/api/v1/chat/completions",
+    try {
 
-{
+        const response = await fetch(
+            "https://openrouter.ai/api/v1/chat/completions",
+            {
+                method: "POST",
 
-method:"POST",
+                headers: {
+                    "Authorization":
+                        `Bearer ${process.env.OPENROUTER_API_KEY}`,
 
-headers:{
+                    "Content-Type": "application/json"
+                },
 
-"Authorization":
-`Bearer ${process.env.OPENROUTER_API_KEY}`,
+                body: JSON.stringify({
 
-"Content-Type":
-"application/json"
+                    model: "openrouter/free",
 
-},
+                    messages: req.body.messages
 
-body:JSON.stringify({
+                })
 
-model:"openrouter/free",
+            }
+        );
 
-messages:req.body.messages
+        const data = await response.json();
 
-})
+        res.status(200).json({
 
-}
+            reply:
+                data.choices?.[0]?.message?.content ||
+                "Sin respuesta"
 
-);
+        });
 
+    }
 
+    catch (error) {
 
-const data = await response.json();
+        res.status(500).json({
 
+            error: error.message
 
+        });
 
-res.status(200).json({
-
-reply:
-
-data.choices?.[0]?.message?.content ||
-
-"Sin respuesta"
-
-});
-
-
-}
-
-
-
-catch(error){
-
-
-res.status(500).json({
-
-error:error.message
-
-});
-
-
-}
-
+    }
 
 }
